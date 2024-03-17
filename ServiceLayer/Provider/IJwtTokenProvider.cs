@@ -1,7 +1,9 @@
-﻿namespace ServiceLayer.Provider
+﻿using ServiceLayer.ServiceModel;
+
+namespace ServiceLayer.Provider
 {
-    public interface IJwtTokenProvider
+    internal interface IJwtTokenProvider
     {
-        string GenerateToken(string password);
+        Tokens GenerateTokens(JwtTokenBodyInfo bodyInfo);
     }
 }

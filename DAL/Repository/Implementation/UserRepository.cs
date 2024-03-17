@@ -9,15 +9,25 @@ namespace DAL.Repository.Implementation
     {
         private readonly ApplicationContext _context = context;
 
+        public async Task<bool> CheckIfEmailExists(string email)
+        {
+            return await _context.Users.AnyAsync(u => u.Email.Equals(email));
+        }
+
+        public async Task<bool> CheckIfUsernameExists(string username)
+        {
+            return await _context.Users.AnyAsync(u => u.UserName.Equals(username));
+        }
+
         public async Task CreateUserAsync(User newUser)
         {
             await _context.Users.AddAsync(newUser);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<User?> GetUserAsync(string email, string password)
+        public async Task<User?> GetUserAsync(string email)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email && u.Password == password);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
             return user;
         }
     }
