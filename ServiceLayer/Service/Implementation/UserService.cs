@@ -36,7 +36,7 @@ namespace ServiceLayer.Service.Implementation
 
         private async Task<bool> Authenticate(string email, string password)
         {
-            if(!ValidateEmail(email)) return false;
+            //if(!ValidateEmail(email)) return false;
 
             var user = await _userRepository.GetUserAsync(email);
             
@@ -56,10 +56,10 @@ namespace ServiceLayer.Service.Implementation
             return hash.SequenceEqual(calcHash);
         }
 
-        private bool ValidateEmail(string email)
-        {
-            return new Regex(@"^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$").IsMatch(email);
-        }
+        //private bool ValidateEmail(string email)
+        //{
+        //    return new Regex(@"^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$").IsMatch(email);
+        //}
 
         public async Task<AuthResponse> Register(RegisterRequest registerRequest)
         {

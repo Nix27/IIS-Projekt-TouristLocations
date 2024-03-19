@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL.Repository.Implementation
 {
-    internal class UserRepository(ApplicationContext context) : IUserRepository
+    public class UserRepository(ApplicationContext context) : IUserRepository
     {
         private readonly ApplicationContext _context = context;
 

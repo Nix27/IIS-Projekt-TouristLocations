@@ -2,7 +2,7 @@
 
 namespace DAL.UnitOfWork
 {
-    internal class UnitOfWork(ApplicationContext context) : IUnitOfWork
+    public class UnitOfWork(ApplicationContext context) : IUnitOfWork
     {
         private readonly ApplicationContext _context = context;
 
