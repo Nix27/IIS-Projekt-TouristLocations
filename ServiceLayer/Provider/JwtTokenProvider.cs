@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using ServiceLayer.ServiceModel;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace ServiceLayer.Provider
@@ -11,7 +12,7 @@ namespace ServiceLayer.Provider
     {
         private readonly IConfiguration _configuration = configuration;
 
-        public Tokens GenerateTokens(JwtTokenBodyInfo bodyInfo)
+        public string GenerateTokens(JwtTokenBodyInfo bodyInfo)
         {
             var jwtKey = _configuration["Jwt:Key"]!;
             var jwtKeyBytes = Encoding.UTF8.GetBytes(jwtKey);
@@ -32,11 +33,52 @@ namespace ServiceLayer.Provider
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            return new()
+            return tokenHandler.WriteToken(token);
+        }
+
+        public string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[128];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        public string Refresh(string expiredToken)
+        {
+            var principal = GetPrincipalFromExpiredToken(expiredToken);
+            var email = principal.FindFirst(ClaimTypes.Email)!.Value;
+
+            return new JwtTokenProvider(_configuration).GenerateTokens(new JwtTokenBodyInfo
             {
-                AccessToken = tokenHandler.WriteToken(token),
-                RefreshToken = ""
+                Email = email
+            });
+        }
+
+        private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+        {
+            var jwtKey = _configuration["Jwt:Key"]!;
+            var jwtKeyBytes = Encoding.UTF8.GetBytes(jwtKey);
+
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateLifetime = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(jwtKeyBytes),
+                ClockSkew = TimeSpan.Zero
             };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+            JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token");
+            }
+
+            return principal;
         }
     }
 }

@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using ServiceLayer.Service.Abstraction;
 using ServiceLayer.ServiceModel;
 using System.Security.Cryptography;
-using System.Text.RegularExpressions;
 using ServiceLayer.Provider;
 using Microsoft.Extensions.Configuration;
+using DAL.Model;
 
 namespace ServiceLayer.Service.Implementation
 {
@@ -18,29 +18,39 @@ namespace ServiceLayer.Service.Implementation
 
         public async Task<AuthResponse> Login(LoginRequest loginRequest)
         {
-            if(!await Authenticate(loginRequest.Email, loginRequest.Password))
+            var user = await Authenticate(loginRequest.Email, loginRequest.Password);
+            if (user == null)
             {
                 return new AuthResponse { IsSuccessful = false, Message = "Invalid email or password" };
             }
+
+            JwtTokenProvider jwtTokenProvider = new(_configuration);
+
+            user.RefreshToken = jwtTokenProvider.GenerateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(2);
+
+            await _unitOfWork.SaveAsync();
 
             return new LoginResponse
             {
                 IsSuccessful = true,
                 Message = "Login successful",
-                Tokens = new JwtTokenProvider(_configuration).GenerateTokens(new JwtTokenBodyInfo
+                Tokens = new()
                 {
-                    Email = loginRequest.Email
-                })
+                    AccessToken = jwtTokenProvider.GenerateTokens(new JwtTokenBodyInfo
+                    {
+                        Email = loginRequest.Email
+                    }),
+                    RefreshToken = jwtTokenProvider.GenerateRefreshToken()
+                }
             };
         }
 
-        private async Task<bool> Authenticate(string email, string password)
+        private async Task<User?> Authenticate(string email, string password)
         {
-            //if(!ValidateEmail(email)) return false;
-
             var user = await _userRepository.GetUserAsync(email);
             
-            if(user == null) return false;
+            if(user == null) return null;
 
             byte[] salt = Convert.FromBase64String(user.PwdSalt);
             byte[] hash = Convert.FromBase64String(user.PwdHash);
@@ -53,13 +63,8 @@ namespace ServiceLayer.Service.Implementation
                     iterationCount: 100000,
                     numBytesRequested: 256 / 8);
 
-            return hash.SequenceEqual(calcHash);
+            return hash.SequenceEqual(calcHash) ? user : null;
         }
-
-        //private bool ValidateEmail(string email)
-        //{
-        //    return new Regex(@"^(?=.{1,64}@)[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*@[^-][A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$").IsMatch(email);
-        //}
 
         public async Task<AuthResponse> Register(RegisterRequest registerRequest)
         {

@@ -23,5 +23,11 @@ namespace TouristLocationsApi.Controllers
             var response = await _userService.Login(loginRequest);
             return response.IsSuccessful ? Ok(response) : BadRequest(response);
         }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody] string expiredToken)
+        {
+            
+        }
     }
 }
