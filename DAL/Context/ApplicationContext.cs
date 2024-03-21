@@ -10,5 +10,10 @@ namespace DAL.Context
         }
 
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Planet> Planets { get; set; } = null!;
+        public DbSet<Continent> Continents { get; set; } = null!;
+        public DbSet<Country> Countries { get; set; } = null!;
+        public DbSet<City> Cities { get; set; } = null!;
+        public DbSet<TouristLocation> TouristLocations { get; set; } = null!;
     }
 }
