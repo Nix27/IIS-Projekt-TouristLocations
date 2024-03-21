@@ -6,5 +6,7 @@ namespace ServiceLayer.Service.Abstraction
     {
         Task<AuthResponse> Register(RegisterRequest registerRequest);
         Task<AuthResponse> Login(LoginRequest loginRequest);
+        Task<AuthResponse> RefreshToken(RefreshRequest refreshRequest);
+        Task<AuthResponse> Logout(string email);
     }
 }

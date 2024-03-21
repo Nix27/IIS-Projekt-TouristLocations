@@ -2,6 +2,7 @@
 using DAL.Model;
 using DAL.Repository.Abstraction;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace DAL.Repository.Implementation
 {
@@ -25,10 +26,25 @@ namespace DAL.Repository.Implementation
             await _context.SaveChangesAsync();
         }
 
-        public async Task<User?> GetUserAsync(string email)
+        public Task<User?> GetUserAsyncBy(Expression<Func<User, bool>> filter)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(email));
-            return user;
+            return _context.Users.FirstOrDefaultAsync(filter);
+        }
+
+        public async Task UpdateRefreshToken(string? refreshToken, string userEmail)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email.Equals(userEmail));
+
+            if (refreshToken != null)
+            {
+                user!.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(2);
+            }
+            else
+            {
+                user!.RefreshToken = null;
+                user.RefreshTokenExpiryTime = null;
+            }
         }
     }
 }

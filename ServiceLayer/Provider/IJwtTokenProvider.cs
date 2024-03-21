@@ -4,6 +4,7 @@ namespace ServiceLayer.Provider
 {
     internal interface IJwtTokenProvider
     {
-        Tokens GenerateTokens(JwtTokenBodyInfo bodyInfo);
+        string GenerateAccessToken(JwtTokenBodyInfo bodyInfo);
+        string GenerateRefreshToken();
     }
 }

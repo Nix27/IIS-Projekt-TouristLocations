@@ -25,9 +25,17 @@ namespace TouristLocationsApi.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] string expiredToken)
+        public async Task<IActionResult> RefreshExpiredToken([FromBody] RefreshRequest refreshRequest)
         {
-            
+            var response = await _userService.RefreshToken(refreshRequest);
+            return response.IsSuccessful ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout([FromBody] string userEmail)
+        {
+            var response = await _userService.Logout(userEmail);
+            return response.IsSuccessful ? Ok(response) : BadRequest(response);
         }
     }
 }

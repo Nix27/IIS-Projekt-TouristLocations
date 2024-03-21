@@ -12,7 +12,7 @@ namespace ServiceLayer.Provider
     {
         private readonly IConfiguration _configuration = configuration;
 
-        public string GenerateTokens(JwtTokenBodyInfo bodyInfo)
+        public string GenerateAccessToken(JwtTokenBodyInfo bodyInfo)
         {
             var jwtKey = _configuration["Jwt:Key"]!;
             var jwtKeyBytes = Encoding.UTF8.GetBytes(jwtKey);
@@ -44,12 +44,12 @@ namespace ServiceLayer.Provider
             return Convert.ToBase64String(randomNumber);
         }
 
-        public string Refresh(string expiredToken)
+        public async Task<string> Refresh(string expiredToken, string refreshToken)
         {
             var principal = GetPrincipalFromExpiredToken(expiredToken);
             var email = principal.FindFirst(ClaimTypes.Email)!.Value;
 
-            return new JwtTokenProvider(_configuration).GenerateTokens(new JwtTokenBodyInfo
+            return new JwtTokenProvider(_configuration).GenerateAccessToken(new JwtTokenBodyInfo
             {
                 Email = email
             });
@@ -72,7 +72,7 @@ namespace ServiceLayer.Provider
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
-            JwtSecurityToken jwtSecurityToken = securityToken as JwtSecurityToken;
+            JwtSecurityToken jwtSecurityToken = (securityToken as JwtSecurityToken)!;
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
             {
                 throw new SecurityTokenException("Invalid token");

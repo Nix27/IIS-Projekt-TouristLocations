@@ -6,7 +6,6 @@ using ServiceLayer.ServiceModel;
 using System.Security.Cryptography;
 using ServiceLayer.Provider;
 using Microsoft.Extensions.Configuration;
-using DAL.Model;
 
 namespace ServiceLayer.Service.Implementation
 {
@@ -18,17 +17,15 @@ namespace ServiceLayer.Service.Implementation
 
         public async Task<AuthResponse> Login(LoginRequest loginRequest)
         {
-            var user = await Authenticate(loginRequest.Email, loginRequest.Password);
-            if (user == null)
+            if (!await Authenticate(loginRequest.Email, loginRequest.Password))
             {
                 return new AuthResponse { IsSuccessful = false, Message = "Invalid email or password" };
             }
 
             JwtTokenProvider jwtTokenProvider = new(_configuration);
+            var refreshToken = jwtTokenProvider.GenerateRefreshToken();
 
-            user.RefreshToken = jwtTokenProvider.GenerateRefreshToken();
-            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(2);
-
+            await _userRepository.UpdateRefreshToken(refreshToken, loginRequest.Email);
             await _unitOfWork.SaveAsync();
 
             return new LoginResponse
@@ -37,20 +34,20 @@ namespace ServiceLayer.Service.Implementation
                 Message = "Login successful",
                 Tokens = new()
                 {
-                    AccessToken = jwtTokenProvider.GenerateTokens(new JwtTokenBodyInfo
+                    AccessToken = jwtTokenProvider.GenerateAccessToken(new JwtTokenBodyInfo
                     {
                         Email = loginRequest.Email
                     }),
-                    RefreshToken = jwtTokenProvider.GenerateRefreshToken()
+                    RefreshToken = refreshToken
                 }
             };
         }
 
-        private async Task<User?> Authenticate(string email, string password)
+        private async Task<bool> Authenticate(string email, string password)
         {
-            var user = await _userRepository.GetUserAsync(email);
+            var user = await _userRepository.GetUserAsyncBy(u => u.Email == email);
             
-            if(user == null) return null;
+            if(user == null) return false;
 
             byte[] salt = Convert.FromBase64String(user.PwdSalt);
             byte[] hash = Convert.FromBase64String(user.PwdHash);
@@ -63,7 +60,7 @@ namespace ServiceLayer.Service.Implementation
                     iterationCount: 100000,
                     numBytesRequested: 256 / 8);
 
-            return hash.SequenceEqual(calcHash) ? user : null;
+            return hash.SequenceEqual(calcHash);
         }
 
         public async Task<AuthResponse> Register(RegisterRequest registerRequest)
@@ -102,6 +99,39 @@ namespace ServiceLayer.Service.Implementation
             await _unitOfWork.SaveAsync();
 
             return new AuthResponse { IsSuccessful = true, Message = "Registration successful" };
+        }
+
+        public async Task<AuthResponse> RefreshToken(RefreshRequest refreshRequest)
+        {
+            var user = await _userRepository.GetUserAsyncBy(u => u.RefreshToken!.Equals(refreshRequest.RefreshToken));
+
+            if(user == null)
+            {
+                return new AuthResponse { IsSuccessful = false, Message = "Invalid refresh token" };
+            }
+
+            JwtTokenProvider jwtTokenProvider = new(_configuration);
+
+            var refreshedToken = await jwtTokenProvider.Refresh(refreshRequest.ExpiredAccessToken, refreshRequest.RefreshToken);
+
+            return new LoginResponse
+            {
+                IsSuccessful = true,
+                Message = "Token refreshed",
+                Tokens = new()
+                {
+                    AccessToken = refreshedToken,
+                    RefreshToken = refreshRequest.RefreshToken
+                }
+            };
+        }
+
+        public async Task<AuthResponse> Logout(string email)
+        {
+            await _userRepository.UpdateRefreshToken(null, email);
+            await _unitOfWork.SaveAsync();
+
+            return new AuthResponse { IsSuccessful = true, Message = "Logout successful" };
         }
     }
 }
