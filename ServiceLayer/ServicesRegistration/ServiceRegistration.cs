@@ -23,6 +23,7 @@ namespace ServiceLayer.ServicesRegistration
         public static void RegisterRepositories(this IServiceCollection services)
         {
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
         }
 
         public static void RegisterUnitOfWork(this IServiceCollection services)
@@ -33,6 +34,7 @@ namespace ServiceLayer.ServicesRegistration
         public static void RegisterServices(this IServiceCollection services)
         {
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ITouristLocationsService, TouristLocationsService>();
         }
     }
 }
