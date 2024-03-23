@@ -6,7 +6,7 @@ namespace DAL.Model
     public class Continent : DbEntity
     {
         [Required]
-        public ContinentType Name { get; set; }
+        public string Name { get; set; } = null!;
 
         [Required]
         public long Population { get; set; }

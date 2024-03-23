@@ -1,8 +1,11 @@
-﻿using DAL.Repository.Abstraction;
+﻿using AutoMapper;
+using DAL.Model;
+using DAL.Repository.Abstraction;
 using DAL.UnitOfWork;
 using Microsoft.AspNetCore.Http;
 using ServiceLayer.Service.Abstraction;
 using ServiceLayer.ServiceModel;
+using System.Transactions;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -13,20 +16,22 @@ namespace ServiceLayer.Service.Implementation
     {
         private const string XSD_PATH = "XsdFile/TouristLocations.xsd";
 
-        private readonly IRepository<DAL.Model.Planet> _planetRepository;
-        private readonly IRepository<DAL.Model.Continent> _continentRepository;
-        private readonly IRepository<DAL.Model.Country> _countryRepository;
-        private readonly IRepository<DAL.Model.City> _cityRepository;
-        private readonly IRepository<DAL.Model.TouristLocation> _touristLocationRepository;
+        private readonly IRepository<Planet> _planetRepository;
+        private readonly IRepository<Continent> _continentRepository;
+        private readonly IRepository<Country> _countryRepository;
+        private readonly IRepository<City> _cityRepository;
+        private readonly IRepository<TouristLocation> _touristLocationRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IMapper _mapper;
 
         public TouristLocationsService(
-            IRepository<DAL.Model.Planet> planetRepository,
-            IRepository<DAL.Model.Continent> continentRepository,
-            IRepository<DAL.Model.Country> countryRepository,
-            IRepository<DAL.Model.City> cityRepository,
-            IRepository<DAL.Model.TouristLocation> touristLocationRepository,
-            IUnitOfWork unitOfWork)
+            IRepository<Planet> planetRepository,
+            IRepository<Continent> continentRepository,
+            IRepository<Country> countryRepository,
+            IRepository<City> cityRepository,
+            IRepository<TouristLocation> touristLocationRepository,
+            IUnitOfWork unitOfWork,
+            IMapper mapper)
         {
             _planetRepository = planetRepository;
             _continentRepository = continentRepository;
@@ -34,6 +39,7 @@ namespace ServiceLayer.Service.Implementation
             _cityRepository = cityRepository;
             _touristLocationRepository = touristLocationRepository;
             _unitOfWork = unitOfWork;
+            _mapper = mapper;
         }
 
         public async Task<UploadResponse> AddTouristLocationsFromXmlAsync(IFormFile xml)
@@ -58,18 +64,17 @@ namespace ServiceLayer.Service.Implementation
                 using var stream = xml.OpenReadStream();
                 var planets = (Planets)serializer.Deserialize(stream)!;
 
-                foreach (var planet in planets.Planet)
-                {
-                    await _planetRepository.AddAsync(new DAL.Model.Planet { Name = planet.Name });
-                    await _unitOfWork.SaveAsync();
-
-                }
+                await AddXmlEntitiesToDb(planets);
 
                 return new UploadResponse { IsSuccessful = true, Message = "Tourist locations added successfully" };
             }
-            catch (Exception ex)
+            catch (XmlSchemaValidationException ex)
             {
                 return new UploadResponse { IsSuccessful = false, Message = $"Xml validation with xsd failed: {ex.Message}" };
+            }
+            catch (Exception ex)
+            {
+                return new UploadResponse { IsSuccessful = false, Message = $"Error: {ex.Message}" };
             }
         }
 
@@ -82,6 +87,52 @@ namespace ServiceLayer.Service.Implementation
 
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             return extension == ".xml";
+        }
+
+        private async Task AddXmlEntitiesToDb(Planets planets)
+        {
+            using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
+            foreach (var xmlPlanet in planets.ListOfPlanets)
+            {
+                var planet = _mapper.Map<Planet>(xmlPlanet);
+                await _planetRepository.AddAsync(planet);
+                await _unitOfWork.SaveAsync();
+
+                foreach (var xmlContinent in xmlPlanet.Continents.ListOfContinents)
+                {
+                    var continent = _mapper.Map<Continent>(xmlContinent);
+                    continent.PlanetId = planet.Id;
+                    await _continentRepository.AddAsync(continent);
+                    await _unitOfWork.SaveAsync();
+
+                    foreach (var xmlCountry in xmlContinent.Countries.ListOfCountries)
+                    {
+                        var country = _mapper.Map<Country>(xmlCountry);
+                        country.ContinentId = continent.Id;
+                        await _countryRepository.AddAsync(country);
+                        await _unitOfWork.SaveAsync();
+
+                        foreach (var xmlCity in xmlCountry.Cities.ListOfCities)
+                        {
+                            var city = _mapper.Map<City>(xmlCity);
+                            city.CountryId = country.Id;
+                            await _cityRepository.AddAsync(city);
+                            await _unitOfWork.SaveAsync();
+
+                            foreach (var xmlTouristLocation in xmlCity.TouristLocations.ListOfTouristLocations)
+                            {
+                                var touristLocation = _mapper.Map<TouristLocation>(xmlTouristLocation);
+                                touristLocation.CityId = city.Id;
+                                await _touristLocationRepository.AddAsync(touristLocation);
+                                await _unitOfWork.SaveAsync();
+                            }
+                        }
+                    }
+                }
+            }
+
+            transaction.Complete();
         }
     }
 }
