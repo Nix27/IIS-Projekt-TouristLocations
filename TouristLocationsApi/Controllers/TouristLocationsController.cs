@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ServiceLayer.Service.Abstraction;
 using ServiceLayer.ServiceModel;
 
@@ -10,6 +11,7 @@ namespace TouristLocationsApi.Controllers
     {
         private readonly ITouristLocationsService _touristLocationsService = touristLocationsService;
 
+        [Authorize]
         [HttpPost("uploadxsdvalidation")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddTouristLocationsFromXmlUsingXsdValidationAsync(IFormFile xml)
@@ -18,6 +20,7 @@ namespace TouristLocationsApi.Controllers
             return Ok(response);
         }
 
+        [Authorize]
         [HttpPost("uploadrngvalidation")]
         [Consumes("multipart/form-data")]
         public async Task<IActionResult> AddTouristLocationsFromXmlUsingRngValidationAsync(IFormFile xml)

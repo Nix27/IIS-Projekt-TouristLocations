@@ -11,10 +11,7 @@
               <text/>
             </element>
             <element name="population">
-              <data type="integer">
-                <param name="minInclusive">1000000</param>
-                <param name="maxInclusive">50000000</param>
-              </data>
+              <data type="long"/>
             </element>
             <element name="countries">
               <oneOrMore>
@@ -26,10 +23,7 @@
                     <text/>
                   </element>
                   <element name="population">
-                    <data type="integer">
-                      <param name="minInclusive">100000</param>
-                      <param name="maxInclusive">10000000</param>
-                    </data>
+                    <data type="long"/>
                   </element>
                   <element name="cities">
                     <oneOrMore>
@@ -38,10 +32,7 @@
                           <text/>
                         </element>
                         <element name="population">
-                          <data type="integer">
-                            <param name="minInclusive">10000</param>
-                            <param name="maxInclusive">2000000</param>
-                          </data>
+                          <data type="long"/>
                         </element>
                         <element name="touristLocations">
                           <oneOrMore>

@@ -3,39 +3,39 @@
   <xs:element name="planets">
     <xs:complexType>
       <xs:sequence>
-        <xs:element name="planet">
+        <xs:element minOccurs="1" maxOccurs="unbounded" name="planet">
           <xs:complexType>
             <xs:sequence>
               <xs:element name="name" type="xs:string" />
               <xs:element name="continents">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element name="continent">
+                    <xs:element minOccurs="1" maxOccurs="unbounded" name="continent">
                       <xs:complexType>
                         <xs:sequence>
                           <xs:element name="name" type="xs:string" />
-                          <xs:element name="population" type="xs:unsignedInt" />
+                          <xs:element name="population" type="xs:long" />
                           <xs:element name="countries">
                             <xs:complexType>
                               <xs:sequence>
-                                <xs:element name="country">
+                                <xs:element minOccurs="1" maxOccurs="unbounded" name="country">
                                   <xs:complexType>
                                     <xs:sequence>
                                       <xs:element name="name" type="xs:string" />
                                       <xs:element name="officialLanguage" type="xs:string" />
-                                      <xs:element name="population" type="xs:unsignedInt" />
+                                      <xs:element name="population" type="xs:long" />
                                       <xs:element name="cities">
                                         <xs:complexType>
                                           <xs:sequence>
-                                            <xs:element name="city">
+                                            <xs:element minOccurs="1" maxOccurs="unbounded" name="city">
                                               <xs:complexType>
                                                 <xs:sequence>
                                                   <xs:element name="name" type="xs:string" />
-                                                  <xs:element name="population" type="xs:unsignedInt" />
+                                                  <xs:element name="population" type="xs:long" />
                                                   <xs:element name="touristLocations">
                                                     <xs:complexType>
                                                       <xs:sequence>
-                                                        <xs:element maxOccurs="unbounded" name="touristLocation">
+                                                        <xs:element minOccurs="1" maxOccurs="unbounded" name="touristLocation">
                                                           <xs:complexType>
                                                             <xs:sequence>
                                                               <xs:element name="name" type="xs:string" />
