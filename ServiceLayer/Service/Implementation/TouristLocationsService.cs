@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Commons.Xml.Relaxng;
 using DAL.Model;
 using DAL.Repository.Abstraction;
 using DAL.UnitOfWork;
@@ -7,6 +8,7 @@ using ServiceLayer.Service.Abstraction;
 using ServiceLayer.ServiceModel;
 using System.Transactions;
 using System.Xml;
+using System.Xml.Linq;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
@@ -14,7 +16,8 @@ namespace ServiceLayer.Service.Implementation
 {
     public class TouristLocationsService : ITouristLocationsService
     {
-        private const string XSD_PATH = "XsdFile/TouristLocations.xsd";
+        private const string XSD_PATH = "XmlSchemas/TouristLocations.xsd";
+        private const string RNG_PATH = "XmlSchemas/TouristLocations.rng";
 
         private readonly IRepository<Planet> _planetRepository;
         private readonly IRepository<Continent> _continentRepository;
@@ -42,7 +45,7 @@ namespace ServiceLayer.Service.Implementation
             _mapper = mapper;
         }
 
-        public async Task<UploadResponse> AddTouristLocationsFromXmlAsync(IFormFile xml)
+        public async Task<UploadResponse> AddTouristLocationsFromXmlUsingXsdValidationAsync(IFormFile xml)
         {
             if(!IsXmlFile(xml)) return new UploadResponse { IsSuccessful = false, Message = "Invalid file type" };
 
@@ -133,6 +136,43 @@ namespace ServiceLayer.Service.Implementation
             }
 
             transaction.Complete();
+        }
+
+        public async Task<UploadResponse> AddTouristLocationsFromXmlUsingRngValidationAsync(IFormFile xml)
+        {
+            if (!IsXmlFile(xml)) return new UploadResponse { IsSuccessful = false, Message = "Invalid file type" };
+
+            try
+            {
+                using XmlReader xmlReader = XmlReader.Create(xml.OpenReadStream());
+                using XmlReader rngReader = new XmlTextReader(RNG_PATH);
+                RelaxngPattern rngPattern = RelaxngPattern.Read(rngReader);
+
+                using var reader = new RelaxngValidatingReader(xmlReader, rngPattern);
+
+                reader.InvalidNodeFound += (source, message) => throw new XmlSchemaValidationException(message);
+
+                var serializer = new XmlSerializer(typeof(Planets));
+                using var stream = xml.OpenReadStream();
+                var planets = (Planets)serializer.Deserialize(stream)!;
+
+                await AddXmlEntitiesToDb(planets);
+
+                return new UploadResponse { IsSuccessful = true, Message = "Tourist locations added successfully" };
+            }
+            catch (XmlSchemaValidationException ex)
+            {
+                return new UploadResponse { IsSuccessful = false, Message = $"Xml validation with xsd failed: {ex.Message}" };
+            }
+            catch (Exception ex)
+            {
+                return new UploadResponse { IsSuccessful = false, Message = $"Error: {ex.Message}" };
+            }
+        }
+
+        private static void ValidationEventHandler(object sender, ValidationEventArgs e)
+        {
+            if(e.Message != null) throw new XmlSchemaValidationException(e.Message);
         }
     }
 }

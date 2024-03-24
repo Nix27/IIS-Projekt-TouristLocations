@@ -1,0 +1,75 @@
+<element name="planets" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" xmlns="http://relaxng.org/ns/structure/1.0">
+  <oneOrMore>
+    <element name="planet">
+      <element name="name">
+        <text/>
+      </element>
+      <element name="continents">
+        <oneOrMore>
+          <element name="continent">
+            <element name="name">
+              <text/>
+            </element>
+            <element name="population">
+              <data type="integer">
+                <param name="minInclusive">1000000</param>
+                <param name="maxInclusive">50000000</param>
+              </data>
+            </element>
+            <element name="countries">
+              <oneOrMore>
+                <element name="country">
+                  <element name="name">
+                    <text/>
+                  </element>
+                  <element name="officialLanguage">
+                    <text/>
+                  </element>
+                  <element name="population">
+                    <data type="integer">
+                      <param name="minInclusive">100000</param>
+                      <param name="maxInclusive">10000000</param>
+                    </data>
+                  </element>
+                  <element name="cities">
+                    <oneOrMore>
+                      <element name="city">
+                        <element name="name">
+                          <text/>
+                        </element>
+                        <element name="population">
+                          <data type="integer">
+                            <param name="minInclusive">10000</param>
+                            <param name="maxInclusive">2000000</param>
+                          </data>
+                        </element>
+                        <element name="touristLocations">
+                          <oneOrMore>
+                            <element name="touristLocation">
+                              <element name="name">
+                                <text/>
+                              </element>
+                              <element name="description">
+                                <text/>
+                              </element>
+                              <element name="rating">
+                                <data type="integer">
+                                  <param name="minInclusive">1</param>
+                                  <param name="maxInclusive">10</param>
+                                </data>
+                              </element>
+                            </element>
+                          </oneOrMore>
+                        </element>
+                      </element>
+                    </oneOrMore>
+                  </element>
+                </element>
+              </oneOrMore>
+            </element>
+          </element>
+        </oneOrMore>
+      </element>
+    </element>
+  </oneOrMore>
+</element>

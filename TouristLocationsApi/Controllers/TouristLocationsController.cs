@@ -10,11 +10,19 @@ namespace TouristLocationsApi.Controllers
     {
         private readonly ITouristLocationsService _touristLocationsService = touristLocationsService;
 
-        [HttpPost("upload")]
+        [HttpPost("uploadxsdvalidation")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> AddTouristLocationsFromXmlAsync(IFormFile xml)
+        public async Task<IActionResult> AddTouristLocationsFromXmlUsingXsdValidationAsync(IFormFile xml)
         {
-            var response = await _touristLocationsService.AddTouristLocationsFromXmlAsync(xml);
+            var response = await _touristLocationsService.AddTouristLocationsFromXmlUsingXsdValidationAsync(xml);
+            return Ok(response);
+        }
+
+        [HttpPost("uploadrngvalidation")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> AddTouristLocationsFromXmlUsingRngValidationAsync(IFormFile xml)
+        {
+            var response = await _touristLocationsService.AddTouristLocationsFromXmlUsingRngValidationAsync(xml);
             return Ok(response);
         }
     }
