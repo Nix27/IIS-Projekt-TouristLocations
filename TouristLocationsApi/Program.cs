@@ -2,15 +2,14 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ServiceLayer.Mapping;
+using ServiceLayer.Service.Abstraction;
 using ServiceLayer.ServicesRegistration;
+using SoapCore;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -77,6 +76,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseSoapEndpoint<ITouristLocationsSoapService>("/TouristLocations.asmx", new SoapEncoderOptions());
 
 app.UseAuthentication();
 app.UseAuthorization();
