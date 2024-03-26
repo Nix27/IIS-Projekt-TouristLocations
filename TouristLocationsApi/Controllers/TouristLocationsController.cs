@@ -7,9 +7,10 @@ namespace TouristLocationsApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TouristLocationsController(ITouristLocationsService touristLocationsService) : ControllerBase
+    public class TouristLocationsController(ITouristLocationsService touristLocationsService, ITouristLocationsSoapService touristLocationsSoapService) : ControllerBase
     {
         private readonly ITouristLocationsService _touristLocationsService = touristLocationsService;
+        private readonly ITouristLocationsSoapService _touristLocationsSoapService = touristLocationsSoapService;
 
         [Authorize]
         [HttpPost("uploadxsdvalidation")]

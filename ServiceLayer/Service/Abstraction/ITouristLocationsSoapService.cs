@@ -1,5 +1,4 @@
 ﻿using System.ServiceModel;
-using System.Xml.Linq;
 
 namespace ServiceLayer.Service.Abstraction
 {
@@ -7,6 +6,6 @@ namespace ServiceLayer.Service.Abstraction
     public interface ITouristLocationsSoapService
     {
         [OperationContract]
-        Task<XDocument> GetXmlWithSearchedEntities(string term);
+        Task<string> GetSearchedEntities(string term);
     }
 }
