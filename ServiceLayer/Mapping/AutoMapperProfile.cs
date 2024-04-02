@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using DAL.Model;
+using ServiceLayer.Dto;
 using ServiceLayer.ServiceModel;
 
 namespace ServiceLayer.Mapping
@@ -8,23 +9,15 @@ namespace ServiceLayer.Mapping
     {
         public AutoMapperProfile()
         {
-            CreateMap<XmlPlanet, Planet>()
-                .ForMember(dest => dest.Continents, opt => opt.Ignore())
-                .ReverseMap();
-            CreateMap<XmlContinent, Continent>()
-                .ForMember(dest => dest.Countries, opt => opt.Ignore())
-                .ReverseMap();
-            CreateMap<XmlCountry, Country>()
-                .ForMember(dest => dest.Cities, opt => opt.Ignore())
-                .ReverseMap();
-            CreateMap<XmlCity, City>()
-                .ForMember(dest => dest.TouristLocations, opt => opt.Ignore())
-                .ReverseMap();
-            CreateMap<XmlTouristLocation, TouristLocation>()
+            CreateMap<ContinentDto, Continent>();
+            CreateMap<CountryDto, Country>()
+                .ForMember(dest => dest.Continent, opt => opt.Ignore());
+            CreateMap<CityDto, City>()
+                .ForMember(dest => dest.Country, opt => opt.Ignore());
+            CreateMap<TouristLocationDto, TouristLocation>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
-                .ReverseMap();
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating));
         }
     }
 }

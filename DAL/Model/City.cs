@@ -8,9 +8,6 @@ namespace DAL.Model
         [Required]
         public string Name { get; set; } = null!;
 
-        [Required]
-        public long Population { get; set; }
-
         public int CountryId { get; set; }
         [ForeignKey(nameof(CountryId))]
         public Country Country { get; set; }

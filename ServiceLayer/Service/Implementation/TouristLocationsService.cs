@@ -4,6 +4,7 @@ using DAL.Model;
 using DAL.Repository.Abstraction;
 using DAL.UnitOfWork;
 using Microsoft.AspNetCore.Http;
+using ServiceLayer.Dto;
 using ServiceLayer.Service.Abstraction;
 using ServiceLayer.ServiceModel;
 using System.Transactions;
@@ -14,7 +15,6 @@ using System.Xml.Serialization;
 namespace ServiceLayer.Service.Implementation
 {
     public class TouristLocationsService(
-        IRepository<Planet> planetRepository,
         IRepository<Continent> continentRepository,
         IRepository<Country> countryRepository,
         IRepository<City> cityRepository,
@@ -25,7 +25,6 @@ namespace ServiceLayer.Service.Implementation
         private const string XSD_PATH = "XmlSchemas/TouristLocations.xsd";
         private const string RNG_PATH = "XmlSchemas/TouristLocations.rng";
 
-        private readonly IRepository<Planet> _planetRepository = planetRepository;
         private readonly IRepository<Continent> _continentRepository = continentRepository;
         private readonly IRepository<Country> _countryRepository = countryRepository;
         private readonly IRepository<City> _cityRepository = cityRepository;
@@ -51,11 +50,11 @@ namespace ServiceLayer.Service.Implementation
                 xmlDocument.Load(reader);
                 xmlDocument.Validate((sender, e) => throw new XmlSchemaValidationException(e.Message));
 
-                var serializer = new XmlSerializer(typeof(Planets));
+                var serializer = new XmlSerializer(typeof(TouristLocations));
                 using var stream = xml.OpenReadStream();
-                var planets = (Planets)serializer.Deserialize(stream)!;
+                var touristLocations = (TouristLocations)serializer.Deserialize(stream)!;
 
-                await AddXmlEntitiesToDb(planets);
+                await AddXmlEntitiesToDb(touristLocations);
 
                 return new UploadResponse { IsSuccessful = true, Message = "Tourist locations added successfully" };
             }
@@ -86,11 +85,11 @@ namespace ServiceLayer.Service.Implementation
                     reader.Read();
                 }
 
-                var serializer = new XmlSerializer(typeof(Planets));
+                var serializer = new XmlSerializer(typeof(TouristLocations));
                 using var stream = xml.OpenReadStream();
-                var planets = (Planets)serializer.Deserialize(stream)!;
+                var touristLocations = (TouristLocations)serializer.Deserialize(stream)!;
 
-                await AddXmlEntitiesToDb(planets);
+                await AddXmlEntitiesToDb(touristLocations);
 
                 return new UploadResponse { IsSuccessful = true, Message = "Tourist locations added successfully" };
             }
@@ -111,71 +110,52 @@ namespace ServiceLayer.Service.Implementation
             return extension == ".xml";
         }
 
-        private async Task AddXmlEntitiesToDb(Planets planets)
+        private async Task AddXmlEntitiesToDb(TouristLocations touristLocations)
         {
             using var transaction = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-            foreach (var xmlPlanet in planets.ListOfPlanets)
+            foreach (var touristLocationDto in touristLocations.ListOfTouristLocations)
             {
-                Planet? planet;
-                planet = await _planetRepository.GetEntityAsync(p => p.Name == xmlPlanet.Name);
-                if (planet == null)
+                var continentDto = touristLocationDto.City.Country.Continent;
+                Continent? newContinent;
+                newContinent = await _continentRepository.GetEntityAsync(c => c.Name == continentDto.Name);
+                if (newContinent == null)
                 {
-                    planet = _mapper.Map<Planet>(xmlPlanet);
-                    await _planetRepository.AddAsync(planet);
+                    newContinent = _mapper.Map<Continent>(continentDto);
+                    await _continentRepository.AddAsync(newContinent);
                     await _unitOfWork.SaveAsync();
                 }
 
-                foreach (var xmlContinent in xmlPlanet.Continents.ListOfContinents)
+                var countryDto = touristLocationDto.City.Country;
+                Country? newCountry;
+                newCountry = await _countryRepository.GetEntityAsync(c => c.Name == countryDto.Name);
+                if (newCountry == null)
                 {
-                    Continent? continent;
-                    continent = await _continentRepository.GetEntityAsync(c => c.Name == xmlContinent.Name);
-                    if (continent == null)
-                    {
-                        continent = _mapper.Map<Continent>(xmlContinent);
-                        continent.PlanetId = planet.Id;
-                        await _continentRepository.AddAsync(continent);
-                        await _unitOfWork.SaveAsync();
-                    }
+                    newCountry = _mapper.Map<Country>(countryDto);
+                    newCountry.ContinentId = newContinent.Id;
+                    await _countryRepository.AddAsync(newCountry);
+                    await _unitOfWork.SaveAsync();
+                }
 
-                    foreach (var xmlCountry in xmlContinent.Countries.ListOfCountries)
-                    {
-                        Country? country;
-                        country = await _countryRepository.GetEntityAsync(c => c.Name == xmlCountry.Name);
-                        if (country == null)
-                        {
-                            country = _mapper.Map<Country>(xmlCountry);
-                            country.ContinentId = continent.Id;
-                            await _countryRepository.AddAsync(country);
-                            await _unitOfWork.SaveAsync();
-                        }
+                var cityDto = touristLocationDto.City;
+                City? newCity;
+                newCity = await _cityRepository.GetEntityAsync(c => c.Name == cityDto.Name);
+                if (newCity == null)
+                {
+                    newCity = _mapper.Map<City>(cityDto);
+                    newCity.CountryId = newCountry.Id;
+                    await _cityRepository.AddAsync(newCity);
+                    await _unitOfWork.SaveAsync();
+                }
 
-                        foreach (var xmlCity in xmlCountry.Cities.ListOfCities)
-                        {
-                            City? city;
-                            city = await _cityRepository.GetEntityAsync(c => c.Name == xmlCity.Name);
-                            if (city == null)
-                            {
-                                city = _mapper.Map<City>(xmlCity);
-                                city.CountryId = country.Id;
-                                await _cityRepository.AddAsync(city);
-                                await _unitOfWork.SaveAsync();
-                            }
-
-                            foreach (var xmlTouristLocation in xmlCity.TouristLocations.ListOfTouristLocations)
-                            {
-                                TouristLocation? touristLocation;
-                                touristLocation = await _touristLocationRepository.GetEntityAsync(t => t.Name == xmlTouristLocation.Name);
-                                if (touristLocation == null)
-                                {
-                                    touristLocation = _mapper.Map<TouristLocation>(xmlTouristLocation);
-                                    touristLocation.CityId = city.Id;
-                                    await _touristLocationRepository.AddAsync(touristLocation);
-                                    await _unitOfWork.SaveAsync();
-                                }
-                            }
-                        }
-                    }
+                TouristLocation? newTouristLocation;
+                newTouristLocation = await _touristLocationRepository.GetEntityAsync(tl => tl.Name == touristLocationDto.Name);
+                if (newTouristLocation == null)
+                {
+                    newTouristLocation = _mapper.Map<TouristLocation>(touristLocationDto);
+                    newTouristLocation.CityId = newCity.Id;
+                    await _touristLocationRepository.AddAsync(newTouristLocation);
+                    await _unitOfWork.SaveAsync();
                 }
             }
 

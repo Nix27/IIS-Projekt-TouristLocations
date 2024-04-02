@@ -1,65 +1,35 @@
-<element name="planets" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" xmlns="http://relaxng.org/ns/structure/1.0">
+<element name="touristLocations" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes" xmlns="http://relaxng.org/ns/structure/1.0">
   <oneOrMore>
-    <element name="planet">
+    <element name="touristLocation">
       <element name="name">
-        <text/>
+        <data type="string"/>
       </element>
-      <element name="continents">
-        <oneOrMore>
-          <element name="continent">
-            <element name="name">
-              <text/>
-            </element>
-            <element name="population">
-              <data type="long"/>
-            </element>
-            <element name="countries">
-              <oneOrMore>
-                <element name="country">
-                  <element name="name">
-                    <text/>
-                  </element>
-                  <element name="officialLanguage">
-                    <text/>
-                  </element>
-                  <element name="population">
-                    <data type="long"/>
-                  </element>
-                  <element name="cities">
-                    <oneOrMore>
-                      <element name="city">
-                        <element name="name">
-                          <text/>
-                        </element>
-                        <element name="population">
-                          <data type="long"/>
-                        </element>
-                        <element name="touristLocations">
-                          <oneOrMore>
-                            <element name="touristLocation">
-                              <element name="name">
-                                <text/>
-                              </element>
-                              <element name="description">
-                                <text/>
-                              </element>
-                              <element name="rating">
-                                <data type="integer">
-                                  <param name="minInclusive">1</param>
-                                  <param name="maxInclusive">10</param>
-                                </data>
-                              </element>
-                            </element>
-                          </oneOrMore>
-                        </element>
-                      </element>
-                    </oneOrMore>
-                  </element>
-                </element>
-              </oneOrMore>
-            </element>
+      <element name="description">
+        <data type="string"/>
+      </element>
+      <element name="rating">
+        <data type="integer"/>
+      </element>
+      <element name="city">
+        <element name="name">
+          <data type="string"/>
+        </element>
+        <element name="country">
+          <element name="name">
+            <data type="string"/>
           </element>
-        </oneOrMore>
+          <element name="continent">
+            <choice>
+              <value>Europe</value>
+              <value>Africa</value>
+              <value>Asia</value>
+              <value>North America</value>
+              <value>South America</value>
+              <value>Oceania</value>
+              <value>Antarctica</value>
+            </choice>
+          </element>
+        </element>
       </element>
     </element>
   </oneOrMore>

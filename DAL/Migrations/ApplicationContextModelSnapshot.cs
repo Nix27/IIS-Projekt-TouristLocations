@@ -37,9 +37,6 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("Population")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
                     b.HasIndex("CountryId");
@@ -59,15 +56,7 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PlanetId")
-                        .HasColumnType("int");
-
-                    b.Property<long>("Population")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("PlanetId");
 
                     b.ToTable("Continents");
                 });
@@ -87,35 +76,11 @@ namespace DAL.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OfficialLanguage")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<long>("Population")
-                        .HasColumnType("bigint");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ContinentId");
 
                     b.ToTable("Countries");
-                });
-
-            modelBuilder.Entity("DAL.Model.Planet", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Planets");
                 });
 
             modelBuilder.Entity("DAL.Model.TouristLocation", b =>
@@ -193,17 +158,6 @@ namespace DAL.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("DAL.Model.Continent", b =>
-                {
-                    b.HasOne("DAL.Model.Planet", "Planet")
-                        .WithMany("Continents")
-                        .HasForeignKey("PlanetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Planet");
-                });
-
             modelBuilder.Entity("DAL.Model.Country", b =>
                 {
                     b.HasOne("DAL.Model.Continent", "Continent")
@@ -239,11 +193,6 @@ namespace DAL.Migrations
             modelBuilder.Entity("DAL.Model.Country", b =>
                 {
                     b.Navigation("Cities");
-                });
-
-            modelBuilder.Entity("DAL.Model.Planet", b =>
-                {
-                    b.Navigation("Continents");
                 });
 #pragma warning restore 612, 618
         }
