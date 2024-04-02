@@ -17,7 +17,8 @@ namespace ServiceLayer.Mapping
             CreateMap<TouristLocationDto, TouristLocation>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating));
+                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
+                .ForMember(dest => dest.City, opt => opt.Ignore());
         }
     }
 }

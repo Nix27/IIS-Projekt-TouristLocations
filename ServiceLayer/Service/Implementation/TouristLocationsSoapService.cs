@@ -13,11 +13,9 @@ namespace ServiceLayer.Service.Implementation
 
         public async Task<string> GetSearchedEntities(string term)
         {
-            var planets = await _touristLocationRepository.GetAllAsync(includeProperties: "Continents.Countries.Cities.TouristLocations");
+            var touristLocations = await _touristLocationRepository.GetAllAsync(includeProperties: "City.Country.Continent");
             
             var touristLocationsForXml = new TouristLocations();
-
-
             
             return $"this is my response for test, term: {term}";
         }

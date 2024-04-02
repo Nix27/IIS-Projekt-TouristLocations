@@ -18,19 +18,23 @@
                         <xs:sequence>
                           <xs:element name="name" type="xs:string"/>
                           <xs:element name="continent">
-                            <xs:element name="name">
-                              <xs:simpleType>
-                                <xs:restriction base="xs:string">
-                                  <xs:enumeration value="Africa"/>
-                                  <xs:enumeration value="Antarctica"/>
-                                  <xs:enumeration value="Asia"/>
-                                  <xs:enumeration value="Europe"/>
-                                  <xs:enumeration value="North America"/>
-                                  <xs:enumeration value="Oceania"/>
-                                  <xs:enumeration value="South America"/>
-                                </xs:restriction>
-                            </xs:simpleType>
-                            </xs:element>
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="name">
+                                  <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                      <xs:enumeration value="Africa"/>
+                                      <xs:enumeration value="Antarctica"/>
+                                      <xs:enumeration value="Asia"/>
+                                      <xs:enumeration value="Europe"/>
+                                      <xs:enumeration value="North America"/>
+                                      <xs:enumeration value="Oceania"/>
+                                      <xs:enumeration value="South America"/>
+                                    </xs:restriction>
+                                  </xs:simpleType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
                           </xs:element>
                         </xs:sequence>
                       </xs:complexType>

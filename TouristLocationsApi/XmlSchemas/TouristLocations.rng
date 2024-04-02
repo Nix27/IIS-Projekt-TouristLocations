@@ -19,15 +19,17 @@
             <data type="string"/>
           </element>
           <element name="continent">
-            <choice>
-              <value>Europe</value>
-              <value>Africa</value>
-              <value>Asia</value>
-              <value>North America</value>
-              <value>South America</value>
-              <value>Oceania</value>
-              <value>Antarctica</value>
-            </choice>
+            <element name="name">
+              <choice>
+                <value>Europe</value>
+                <value>Africa</value>
+                <value>Asia</value>
+                <value>North America</value>
+                <value>South America</value>
+                <value>Oceania</value>
+                <value>Antarctica</value>
+              </choice>
+            </element>
           </element>
         </element>
       </element>
