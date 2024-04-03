@@ -10,7 +10,7 @@ namespace ServiceLayer.Dto
         [XmlElement(ElementName = "description")]
         public string Description { get; set; }
         [XmlElement(ElementName = "rating")]
-        public string Rating { get; set; }
+        public int Rating { get; set; }
         [XmlElement(ElementName = "city")]
         public CityDto City { get; set; }
     }

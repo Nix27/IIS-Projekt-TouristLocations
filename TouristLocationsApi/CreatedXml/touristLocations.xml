@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<touristLocations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <touristLocation>
+    <name>Old Port of Marseille</name>
+    <description>Historic harbor with shops and cafes</description>
+    <rating>8</rating>
+    <city>
+      <name>Marseille</name>
+      <country>
+        <name>France</name>
+        <continent>
+          <name>Europe</name>
+        </continent>
+      </country>
+    </city>
+  </touristLocation>
+  <touristLocation>
+    <name>Sydney Opera House</name>
+    <description>Iconic performing arts center on Sydney Harbour</description>
+    <rating>9</rating>
+    <city>
+      <name>Sydney</name>
+      <country>
+        <name>Australia</name>
+        <continent>
+          <name>Oceania</name>
+        </continent>
+      </country>
+    </city>
+  </touristLocation>
+  <touristLocation>
+    <name>Grand Canyon</name>
+    <description>Famous steep-sided canyon carved by the Colorado River</description>
+    <rating>10</rating>
+    <city>
+      <name>Arizona</name>
+      <country>
+        <name>United States</name>
+        <continent>
+          <name>North America</name>
+        </continent>
+      </country>
+    </city>
+  </touristLocation>
+  <touristLocation>
+    <name>Great Wall of China</name>
+    <description>Series of fortifications made of stone, brick, tamped earth, wood, and other materials, generally built along an east-to-west line across the historical northern borders of China to protect the Chinese states and empires against the raids and invasions of the various nomadic groups of the Eurasian Steppe</description>
+    <rating>10</rating>
+    <city>
+      <name>Beijing</name>
+      <country>
+        <name>China</name>
+        <continent>
+          <name>Asia</name>
+        </continent>
+      </country>
+    </city>
+  </touristLocation>
+  <touristLocation>
+    <name>Machu Picchu</name>
+    <description>Incan citadel set high in the Andes Mountains in Peru, above the Urubamba River valley</description>
+    <rating>9</rating>
+    <city>
+      <name>Cusco</name>
+      <country>
+        <name>Peru</name>
+        <continent>
+          <name>South America</name>
+        </continent>
+      </country>
+    </city>
+  </touristLocation>
+</touristLocations>

@@ -22,4 +22,8 @@
     <ProjectReference Include="..\ServiceLayer\ServiceLayer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="CreatedXml\" />
+  </ItemGroup>
+
 </Project>
