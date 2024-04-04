@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServiceLayer.Service.Abstraction;
-using ServiceLayer.ServiceModel;
 
 namespace TouristLocationsApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class TouristLocationsController(ITouristLocationsService touristLocationsService, ITouristLocationsSoapService touristLocationsSoapService) : ControllerBase
+    public class TouristLocationsController(ITouristLocationsService touristLocationsService) : ControllerBase
     {
         private readonly ITouristLocationsService _touristLocationsService = touristLocationsService;
-        private readonly ITouristLocationsSoapService _touristLocationsSoapService = touristLocationsSoapService;
 
         [Authorize]
         [HttpPost("uploadxsdvalidation")]
