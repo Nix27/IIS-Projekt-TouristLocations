@@ -2,7 +2,7 @@
 
 namespace ServiceLayer.Service.Abstraction
 {
-    [XmlRpcUrl("https://localhost:8080/xmlrpc/citiestemperatures")]
+    [XmlRpcUrl("https://localhost:44391")]
     public interface ICityTemperaturesXmlRpcService
     {
         [XmlRpcMethod("getTemperatureOfCity")]

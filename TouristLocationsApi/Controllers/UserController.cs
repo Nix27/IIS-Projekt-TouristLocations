@@ -21,7 +21,7 @@ namespace TouristLocationsApi.Controllers
         public async Task<IActionResult> Login([FromBody] LoginRequest loginRequest)
         {
             var response = await _userService.Login(loginRequest);
-            return response.IsSuccessful ? Ok(response) : BadRequest(response);
+            return response.IsSuccessful ? Ok(response) : Unauthorized(response);
         }
 
         [HttpPost("refresh")]
