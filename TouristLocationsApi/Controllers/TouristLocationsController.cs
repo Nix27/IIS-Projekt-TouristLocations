@@ -16,7 +16,7 @@ namespace TouristLocationsApi.Controllers
         public async Task<IActionResult> AddTouristLocationsFromXmlUsingXsdValidationAsync(IFormFile xml)
         {
             var response = await _touristLocationsService.AddTouristLocationsFromXmlUsingXsdValidationAsync(xml);
-            return Ok(response);
+            return response.IsSuccessful ? Ok(response) : BadRequest(response);
         }
 
         [Authorize]

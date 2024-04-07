@@ -36,7 +36,6 @@ namespace ServiceLayer.ServicesRegistration
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITouristLocationsService, TouristLocationsService>();
             services.AddScoped<ITouristLocationsSoapService, TouristLocationsSoapService>();
-            services.AddScoped<ICityTemperaturesXmlRpcService, CityTemperaturesXmlRpcService>();
         }
     }
 }

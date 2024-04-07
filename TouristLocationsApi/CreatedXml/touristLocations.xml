@@ -43,7 +43,7 @@
     </city>
   </touristLocation>
   <touristLocation>
-    <name>Great Wall of China</name>
+    <name>Great Wall of China2</name>
     <description>Series of fortifications made of stone, brick, tamped earth, wood, and other materials, generally built along an east-to-west line across the historical northern borders of China to protect the Chinese states and empires against the raids and invasions of the various nomadic groups of the Eurasian Steppe</description>
     <rating>10</rating>
     <city>
@@ -58,6 +58,20 @@
   </touristLocation>
   <touristLocation>
     <name>Machu Picchu</name>
+    <description>Incan citadel set high in the Andes Mountains in Peru, above the Urubamba River valley</description>
+    <rating>9</rating>
+    <city>
+      <name>Cusco</name>
+      <country>
+        <name>Peru</name>
+        <continent>
+          <name>South America</name>
+        </continent>
+      </country>
+    </city>
+  </touristLocation>
+  <touristLocation>
+    <name>Machu Picchu2</name>
     <description>Incan citadel set high in the Andes Mountains in Peru, above the Urubamba River valley</description>
     <rating>9</rating>
     <city>
