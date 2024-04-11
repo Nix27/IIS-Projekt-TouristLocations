@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ServiceLayer.Dto;
 using ServiceLayer.Service.Abstraction;
 
 namespace TouristLocationsApi.Controllers
@@ -26,6 +27,41 @@ namespace TouristLocationsApi.Controllers
         {
             var response = await _touristLocationsService.AddTouristLocationsFromXmlUsingRngValidationAsync(xml);
             return Ok(response);
+        }
+
+        [HttpGet("getAllTouristLocations")]
+        public async Task<IActionResult> GetAllTouristLocations()
+        {
+            var touristLocations = await _touristLocationsService.GetAllTouristLocationsAsync();
+            return Ok(touristLocations);
+        }
+
+        [HttpGet("getTouristLocation/{id}")]
+        public async Task<IActionResult> GetTouristLocation(int id)
+        {
+            var touristLocation = await _touristLocationsService.GetTouristLocationAsync(id);
+            return Ok(touristLocation);
+        }
+
+        [HttpPost("addTouristLocation")]
+        public async Task<IActionResult> AddTouristLocation(TouristLocationDto touristLocationDto)
+        {
+            var response = await _touristLocationsService.AddTouristLocationAsync(touristLocationDto);
+            return response.IsSuccessful ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpPut("updateTouristLocation")]
+        public async Task<IActionResult> UpdateTouristLocation(TouristLocationDto touristLocationDto)
+        {
+            var response = await _touristLocationsService.UpdateTouristLocationAsync(touristLocationDto);
+            return response.IsSuccessful ? Ok(response) : BadRequest(response);
+        }
+
+        [HttpDelete("deleteTouristLocation/{id}")]
+        public async Task<IActionResult> DeleteTouristLocation(int id)
+        {
+            var response = await _touristLocationsService.DeleteTouristLocationAsync(id);
+            return response.IsSuccessful ? Ok(response) : BadRequest(response);
         }
     }
 }

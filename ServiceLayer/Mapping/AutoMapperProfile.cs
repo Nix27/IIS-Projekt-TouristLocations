@@ -9,16 +9,10 @@ namespace ServiceLayer.Mapping
     {
         public AutoMapperProfile()
         {
-            CreateMap<ContinentDto, Continent>();
-            CreateMap<CountryDto, Country>()
-                .ForMember(dest => dest.Continent, opt => opt.Ignore());
-            CreateMap<CityDto, City>()
-                .ForMember(dest => dest.Country, opt => opt.Ignore());
-            CreateMap<TouristLocationDto, TouristLocation>()
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
-                .ForMember(dest => dest.City, opt => opt.Ignore());
+            CreateMap<ContinentDto, Continent>().ReverseMap();
+            CreateMap<CountryDto, Country>().ReverseMap();
+            CreateMap<CityDto, City>().ReverseMap();
+            CreateMap<TouristLocationDto, TouristLocation>().ReverseMap();
         }
     }
 }

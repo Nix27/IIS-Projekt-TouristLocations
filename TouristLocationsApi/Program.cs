@@ -87,9 +87,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseSoapEndpoint<ITouristLocationsSoapService>("/TouristLocations.asmx", new SoapEncoderOptions());
-
 app.UseCors("AllowSpecificOrigin");
+app.UseSoapEndpoint<ITouristLocationsSoapService>("/TouristLocations.asmx", new SoapEncoderOptions());
 
 app.UseAuthentication();
 app.UseAuthorization();

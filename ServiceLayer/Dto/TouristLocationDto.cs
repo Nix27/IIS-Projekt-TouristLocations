@@ -5,6 +5,9 @@ namespace ServiceLayer.Dto
     [XmlRoot(ElementName = "touristLocation")]
     public class TouristLocationDto
     {
+        [XmlIgnore]
+        public int Id { get; set; }
+
         [XmlElement(ElementName = "name")]
         public string Name { get; set; }
         [XmlElement(ElementName = "description")]

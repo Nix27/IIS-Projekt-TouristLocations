@@ -4,6 +4,7 @@ using DAL.Model;
 using DAL.Repository.Abstraction;
 using DAL.UnitOfWork;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using ServiceLayer.Dto;
 using ServiceLayer.Service.Abstraction;
 using ServiceLayer.ServiceModel;
@@ -20,7 +21,8 @@ namespace ServiceLayer.Service.Implementation
         IRepository<City> cityRepository,
         IRepository<TouristLocation> touristLocationRepository,
         IUnitOfWork unitOfWork,
-        IMapper mapper) : ITouristLocationsService
+        IMapper mapper,
+        ILogger<TouristLocationsService> logger) : ITouristLocationsService
     {
         private const string XSD_PATH = "XmlSchemas/TouristLocations.xsd";
         private const string RNG_PATH = "XmlSchemas/TouristLocations.rng";
@@ -31,6 +33,7 @@ namespace ServiceLayer.Service.Implementation
         private readonly IRepository<TouristLocation> _touristLocationRepository = touristLocationRepository;
         private readonly IUnitOfWork _unitOfWork = unitOfWork;
         private readonly IMapper _mapper = mapper;
+        private readonly ILogger<TouristLocationsService> _logger = logger;
 
         public async Task<UploadResponse> AddTouristLocationsFromXmlUsingXsdValidationAsync(IFormFile xml)
         {
@@ -121,7 +124,7 @@ namespace ServiceLayer.Service.Implementation
                 newContinent = await _continentRepository.GetEntityAsync(c => c.Name == continentDto.Name);
                 if (newContinent == null)
                 {
-                    newContinent = _mapper.Map<Continent>(continentDto);
+                    newContinent = new() { Name = continentDto.Name };
                     await _continentRepository.AddAsync(newContinent);
                     await _unitOfWork.SaveAsync();
                 }
@@ -131,7 +134,7 @@ namespace ServiceLayer.Service.Implementation
                 newCountry = await _countryRepository.GetEntityAsync(c => c.Name == countryDto.Name);
                 if (newCountry == null)
                 {
-                    newCountry = _mapper.Map<Country>(countryDto);
+                    newCountry = new() { Name = countryDto.Name };
                     newCountry.ContinentId = newContinent.Id;
                     await _countryRepository.AddAsync(newCountry);
                     await _unitOfWork.SaveAsync();
@@ -142,7 +145,7 @@ namespace ServiceLayer.Service.Implementation
                 newCity = await _cityRepository.GetEntityAsync(c => c.Name == cityDto.Name);
                 if (newCity == null)
                 {
-                    newCity = _mapper.Map<City>(cityDto);
+                    newCity = new() { Name = cityDto.Name };
                     newCity.CountryId = newCountry.Id;
                     await _cityRepository.AddAsync(newCity);
                     await _unitOfWork.SaveAsync();
@@ -152,7 +155,7 @@ namespace ServiceLayer.Service.Implementation
                 newTouristLocation = await _touristLocationRepository.GetEntityAsync(tl => tl.Name == touristLocationDto.Name);
                 if (newTouristLocation == null)
                 {
-                    newTouristLocation = _mapper.Map<TouristLocation>(touristLocationDto);
+                    newTouristLocation = new() { Name = touristLocationDto.Name, Description = touristLocationDto.Description, Rating = touristLocationDto.Rating };
                     newTouristLocation.CityId = newCity.Id;
                     await _touristLocationRepository.AddAsync(newTouristLocation);
                     await _unitOfWork.SaveAsync();
@@ -160,6 +163,73 @@ namespace ServiceLayer.Service.Implementation
             }
 
             transaction.Complete();
+        }
+
+        public async Task<IEnumerable<TouristLocationDto>> GetAllTouristLocationsAsync()
+        {
+            var allTouristLocations = await _touristLocationRepository.GetAllAsync(includeProperties: "City.Country.Continent");
+            return _mapper.Map<IEnumerable<TouristLocationDto>>(allTouristLocations);
+        }
+
+        public async Task<TouristLocationDto> GetTouristLocationAsync(int id)
+        {
+            var touristLocation = await _touristLocationRepository.GetEntityAsync(tl => tl.Id == id, includeProperties: "City.Country.Continent");
+            return _mapper.Map<TouristLocationDto>(touristLocation);
+        }
+
+        public async Task<CommandResponse> AddTouristLocationAsync(TouristLocationDto touristLocationDto)
+        {
+            try
+            {
+                await _touristLocationRepository.AddAsync(_mapper.Map<TouristLocation>(touristLocationDto));
+                await _unitOfWork.SaveAsync();
+
+                return new CommandResponse { IsSuccessful = true, Message = "Tourist location added successfully" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding tourist location");
+                return new CommandResponse { IsSuccessful = false, Message = "Error adding tourist location" };
+            }
+        }
+
+        public async Task<CommandResponse> UpdateTouristLocationAsync(TouristLocationDto touristLocationDto)
+        {
+            try
+            {
+                _touristLocationRepository.Update(_mapper.Map<TouristLocation>(touristLocationDto));
+                await _unitOfWork.SaveAsync();
+
+                return new CommandResponse { IsSuccessful = true, Message = "Tourist location updated successfully" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating tourist location");
+                return new CommandResponse { IsSuccessful = false, Message = "Error updating tourist location" };
+            }
+        }
+
+        public async Task<CommandResponse> DeleteTouristLocationAsync(int id)
+        {
+            try
+            {
+                var touristLocation = await _touristLocationRepository.GetEntityAsync(tl => tl.Id == id);
+
+                if (touristLocation == null)
+                {
+                    return new CommandResponse { IsSuccessful = false, Message = "Tourist location not found" };
+                }
+
+                _touristLocationRepository.Delete(touristLocation);
+                await _unitOfWork.SaveAsync();
+
+                return new CommandResponse { IsSuccessful = true, Message = "Tourist location deleted successfully" };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting tourist location");
+                return new CommandResponse { IsSuccessful = false, Message = "Error deleting tourist location" };
+            }
         }
     }
 }
